@@ -261,7 +261,7 @@ function project_think_enqueue_frontend_assets() {
             'project-think-category-filter',
             PROJECT_THINK_URL . 'assets/css/category-filter.css',
             array(),
-            '1.0.0'
+            '1.0.1'
         );
 
         // Enqueue JavaScript with dependencies
@@ -269,7 +269,7 @@ function project_think_enqueue_frontend_assets() {
             'project-think-category-filter',
             PROJECT_THINK_URL . 'assets/js/category-filter.js',
             array(),
-            '1.0.0',
+            '1.0.2',
             true
         );
 

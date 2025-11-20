@@ -50,7 +50,7 @@ if ($url_term_id) {
 
 // Get wrapper classes
 $wrapper_attributes = get_block_wrapper_attributes(array(
-    'class' => 'project-category-filter project-category-filter--' . esc_attr($display_style),
+    'class' => 'project-category-filter center wp-block-group alignfull project-category-filter--' . esc_attr($display_style),
     'data-taxonomy' => esc_attr($taxonomy),
     'data-display-style' => esc_attr($display_style)
 ));
@@ -60,9 +60,9 @@ ob_start();
 ?>
 
 <div <?php echo $wrapper_attributes; ?>>
-    <div class="project-category-filter__label">
+    <!-- <div class="project-category-filter__label">
         <span><?php echo esc_html__('Filter by Subject:', 'project-think'); ?></span>
-    </div>
+    </div> -->
 
     <?php if ($display_style === 'dropdown'): ?>
         <select class="project-category-filter__select" data-filter-control>
@@ -78,7 +78,8 @@ ob_start();
                     data-url="<?php echo esc_url(get_term_link($term)); ?>"
                     <?php selected($current_term_id, $term->term_id); ?>
                 >
-                    <?php echo esc_html($term->name); ?> (<?php echo $term->count; ?>)
+                    <?php echo esc_html($term->name); ?> 
+                    <!-- (<?php echo $term->count; ?>) -->
                 </option>
             <?php endforeach; ?>
         </select>
@@ -108,7 +109,8 @@ ob_start();
                         data-term-slug="<?php echo esc_attr($term->slug); ?>"
                     >
                         <?php echo esc_html($term->name); ?>
-                        <span class="project-category-filter__count">(<?php echo $term->count; ?>)</span>
+                        <!-- <span class="project-category-filter__count">
+                        (<?php echo $term->count; ?>)</span> -->
                     </a>
                 </li>
             <?php endforeach; ?>
