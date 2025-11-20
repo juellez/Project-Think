@@ -1,0 +1,22 @@
+{
+    "apiVersion": 2,
+    "name": "project-think/project-field",
+    "title": "Project Field",
+    "description": "Displays the selected field from a project.",
+    "category": "widgets",
+    "icon": "welcome-learn-more",
+    "keywords": ["project", "unit", "meta", "custom field"],
+    "textdomain": "project-think",
+    "editorScript": "file:./index.js",
+    "version": "1.0.2", 
+    "render": "file:./render.php",
+    "attributes": {
+        "metaField": {
+            "type": "string",
+            "default": "_project_think_google_doc_link"
+        }
+    },
+    "supports": {
+        "html": false
+    }
+}
