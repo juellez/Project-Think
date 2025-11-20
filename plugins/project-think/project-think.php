@@ -215,11 +215,28 @@ add_filter( 'manage_edit-post_sortable_columns', 'project_think_sortable_columns
 */
 
 /**
+ * Register block editor scripts
+ */
+function project_think_register_block_scripts() {
+    // Register Category Filter block editor script
+    wp_register_script(
+        'project-think-category-filter-editor',
+        PROJECT_THINK_URL . 'blocks/category-filter/index.js',
+        array( 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n' ),
+        '1.0.0',
+        false
+    );
+}
+add_action( 'init', 'project_think_register_block_scripts' );
+
+/**
  * Register the Category Filter block
  */
 function project_think_register_blocks() {
-    // Register Category Filter Block
-    register_block_type( PROJECT_THINK_DIR . 'blocks/category-filter' );
+    // Register Category Filter Block with explicit script handle
+    register_block_type( PROJECT_THINK_DIR . 'blocks/category-filter', array(
+        'editor_script' => 'project-think-category-filter-editor',
+    ) );
 
     // Register existing Project Field block if not already registered
     if ( file_exists( PROJECT_THINK_DIR . 'blocks/project-field/block.json' ) ) {
