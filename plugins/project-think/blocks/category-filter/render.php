@@ -26,12 +26,11 @@ if (empty($terms) || is_wp_error($terms)) {
     if (defined('REST_REQUEST') && REST_REQUEST) {
         return '<div class="project-category-filter-notice" style="padding: 15px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; color: #856404;">
             <strong>No categories/subjects found.</strong><br>
-            Please create at least one category/subject to use this filter.
+            Please create at least one to use this filter.
         </div>';
     }
     // On frontend, show a message too (helpful for debugging)
     return '<div class="project-category-filter-notice" style="padding: 15px; background: #f0f0f0; border-radius: 4px;">
-        <em>No categories available. Please create some categories first.</em>
     </div>';
 }
 
