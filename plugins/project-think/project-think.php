@@ -368,3 +368,43 @@ function project_think_search_distinct( $distinct, $query ) {
     return 'DISTINCT';
 }
 add_filter( 'posts_distinct', 'project_think_search_distinct', 10, 2 );
+
+/*
+|--------------------------------------------------------------------------
+| AJAX Handler for Category Filtering
+|--------------------------------------------------------------------------
+*/
+
+/**
+ * AJAX handler to return filtered post IDs
+ * JavaScript will show/hide existing posts based on IDs
+ */
+function project_think_ajax_filter_posts() {
+    // Get parameters
+    $category_id = isset($_GET['category_id']) ? intval($_GET['category_id']) : 0;
+
+    // Build query args
+    $args = array(
+        'post_type' => 'post',
+        'posts_per_page' => -1, // Get all matching posts
+        'post_status' => 'publish',
+        'fields' => 'ids', // Only return IDs for performance
+    );
+
+    // Add category filter if provided
+    if ($category_id > 0) {
+        $args['cat'] = $category_id;
+    }
+
+    // Run the query
+    $query = new WP_Query($args);
+    $post_ids = $query->posts;
+
+    // Return JSON response
+    wp_send_json_success(array(
+        'post_ids' => $post_ids,
+        'count' => count($post_ids)
+    ));
+}
+add_action('wp_ajax_filter_posts', 'project_think_ajax_filter_posts');
+add_action('wp_ajax_nopriv_filter_posts', 'project_think_ajax_filter_posts');
