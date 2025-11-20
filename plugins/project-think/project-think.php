@@ -207,3 +207,79 @@ function project_think_sortable_columns( $columns ) {
 add_filter( 'manage_edit-post_sortable_columns', 'project_think_sortable_columns' );
 
 // Add any activation/deactivation hooks here if needed
+
+/*
+|--------------------------------------------------------------------------
+| Register Custom Blocks
+|--------------------------------------------------------------------------
+*/
+
+/**
+ * Register the Category Filter block
+ */
+function project_think_register_blocks() {
+    // Register Category Filter Block
+    register_block_type( PROJECT_THINK_DIR . 'blocks/category-filter' );
+
+    // Register existing Project Field block if not already registered
+    if ( file_exists( PROJECT_THINK_DIR . 'blocks/project-field/block.json' ) ) {
+        register_block_type( PROJECT_THINK_DIR . 'blocks/project-field' );
+    }
+
+    // Register existing Download Button block if not already registered
+    if ( file_exists( PROJECT_THINK_DIR . 'blocks/download-button/block.json' ) ) {
+        register_block_type( PROJECT_THINK_DIR . 'blocks/download-button' );
+    }
+}
+add_action( 'init', 'project_think_register_blocks' );
+
+/**
+ * Enqueue frontend assets for category filter
+ */
+function project_think_enqueue_frontend_assets() {
+    // Only enqueue on pages where the category filter block is present
+    if ( has_block( 'project-think/category-filter' ) || is_archive() || is_search() ) {
+        // Enqueue CSS
+        wp_enqueue_style(
+            'project-think-category-filter',
+            PROJECT_THINK_URL . 'assets/css/category-filter.css',
+            array(),
+            '1.0.0'
+        );
+
+        // Enqueue JavaScript with dependencies
+        wp_enqueue_script(
+            'project-think-category-filter',
+            PROJECT_THINK_URL . 'assets/js/category-filter.js',
+            array(),
+            '1.0.0',
+            true
+        );
+
+        // Pass data to JavaScript
+        wp_localize_script(
+            'project-think-category-filter',
+            'projectThinkFilter',
+            array(
+                'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+                'restUrl' => rest_url(),
+                'nonce'   => wp_create_nonce( 'wp_rest' )
+            )
+        );
+    }
+}
+add_action( 'wp_enqueue_scripts', 'project_think_enqueue_frontend_assets' );
+
+/**
+ * Enqueue block editor assets
+ */
+function project_think_enqueue_editor_assets() {
+    // Editor styles for category filter block
+    wp_enqueue_style(
+        'project-think-category-filter-editor',
+        PROJECT_THINK_URL . 'assets/css/category-filter.css',
+        array(),
+        '1.0.0'
+    );
+}
+add_action( 'enqueue_block_editor_assets', 'project_think_enqueue_editor_assets' );
