@@ -102,6 +102,12 @@
                 post.style.display = '';
             });
 
+            // Remove any no-results message
+            const noResultsEl = postList.querySelector('.no-results-message');
+            if (noResultsEl) {
+                noResultsEl.remove();
+            }
+
             if (pagination) {
                 pagination.style.display = '';
             }
@@ -121,6 +127,9 @@
         // Get filtered post IDs using REST API
         const apiUrl = '/wp-json/wp/v2/posts?_fields=id&per_page=100&categories=' + termId;
 
+        console.log('Filtering by category:', termId);
+        console.log('API URL:', apiUrl);
+
         fetch(apiUrl, {
             method: 'GET',
             credentials: 'same-origin'
@@ -132,15 +141,20 @@
             return response.json();
         })
         .then(function (posts) {
-            const filteredIds = posts.map(function(p) { return p.id; });
+            console.log('Filtered posts from API:', posts);
+
+            const filteredIds = posts.map(function(p) { return parseInt(p.id); });
+            console.log('Filtered post IDs:', filteredIds);
+
             const allPosts = postList.querySelectorAll('.wp-block-post');
+            console.log('Total posts in DOM:', allPosts.length);
 
             let visibleCount = 0;
 
             // Show/hide posts based on category
             allPosts.forEach(function(postEl) {
-                // WordPress adds "post-{ID}" class to posts
                 const postId = extractPostIdFromElement(postEl);
+                console.log('Post element ID:', postId, 'Should show:', filteredIds.includes(postId));
 
                 if (postId && filteredIds.includes(postId)) {
                     postEl.style.display = '';
@@ -150,11 +164,10 @@
                 }
             });
 
+            console.log('Visible posts after filtering:', visibleCount);
+
             // If no posts visible, show message
             if (visibleCount === 0) {
-                // Hide all posts and show no results
-                allPosts.forEach(function(p) { p.style.display = 'none'; });
-
                 // Create and show no results message
                 const noResults = document.createElement('li');
                 noResults.className = 'wp-block-post no-results-message';
@@ -198,23 +211,26 @@
 
     /**
      * Extract post ID from WordPress post element
-     * WordPress typically adds classes like "post-123" or id="post-123"
+     * WordPress adds classes like "post-201"
      */
     function extractPostIdFromElement(element) {
-        // Try id attribute first
-        if (element.id && element.id.startsWith('post-')) {
-            return parseInt(element.id.replace('post-', ''));
-        }
-
-        // Try class names
+        // Try class names - look for "post-{ID}" pattern
         const classes = element.className.split(' ');
         for (let i = 0; i < classes.length; i++) {
-            if (classes[i].startsWith('post-') && classes[i] !== 'post-template-default') {
-                const id = classes[i].replace('post-', '');
+            const className = classes[i];
+
+            // Match pattern: post-{number}
+            if (/^post-\d+$/.test(className)) {
+                const id = parseInt(className.replace('post-', ''));
                 if (!isNaN(id)) {
-                    return parseInt(id);
+                    return id;
                 }
             }
+        }
+
+        // Try id attribute
+        if (element.id && /^post-\d+$/.test(element.id)) {
+            return parseInt(element.id.replace('post-', ''));
         }
 
         // Try data attribute
@@ -222,6 +238,7 @@
             return parseInt(element.getAttribute('data-post-id'));
         }
 
+        console.warn('Could not extract post ID from element:', element);
         return null;
     }
 
