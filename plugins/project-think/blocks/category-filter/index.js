@@ -6,8 +6,9 @@
     const { registerBlockType } = wp.blocks;
     const { createElement: el } = wp.element;
     const { InspectorControls, useBlockProps } = wp.blockEditor;
-    const { PanelBody, ToggleControl, SelectControl } = wp.components;
+    const { PanelBody, ToggleControl, SelectControl, Disabled } = wp.components;
     const { __ } = wp.i18n;
+    const { ServerSideRender } = wp.serverSideRender || wp.editor;
 
     registerBlockType('project-think/category-filter', {
         edit: function (props) {
@@ -71,96 +72,14 @@
                         )
                     ),
 
-                    // Block preview in editor
+                    // Server-side render preview (shows actual categories)
                     el(
-                        'div',
-                        {
-                            key: 'preview',
-                            className: 'project-category-filter-preview',
-                            style: {
-                                padding: '20px',
-                                border: '2px dashed #ccc',
-                                borderRadius: '4px',
-                                background: '#f9f9f9'
-                            }
-                        },
-                        [
-                            el('p', {
-                                key: 'title',
-                                style: {
-                                    margin: '0 0 10px 0',
-                                    fontWeight: 'bold',
-                                    fontSize: '14px'
-                                }
-                            }, __('Project Category Filter', 'project-think')),
-                            el('p', {
-                                key: 'desc',
-                                style: {
-                                    margin: '0 0 15px 0',
-                                    fontSize: '12px',
-                                    color: '#666'
-                                }
-                            }, __('Display Style: ', 'project-think') + displayStyle),
-                            el('div', {
-                                key: 'sample',
-                                style: {
-                                    padding: '10px',
-                                    background: 'white',
-                                    borderRadius: '3px'
-                                }
-                            }, [
-                                displayStyle === 'dropdown'
-                                    ? el('select', {
-                                        key: 'dropdown',
-                                        style: { width: '100%', padding: '8px' },
-                                        disabled: true
-                                    }, [
-                                        showAllOption && el('option', { key: 'all' }, __('All Projects', 'project-think')),
-                                        el('option', { key: 'cat1' }, __('Sample Category 1', 'project-think')),
-                                        el('option', { key: 'cat2' }, __('Sample Category 2', 'project-think'))
-                                    ])
-                                    : el('ul', {
-                                        key: 'list',
-                                        style: {
-                                            listStyle: 'none',
-                                            margin: 0,
-                                            padding: 0,
-                                            display: displayStyle === 'buttons' ? 'flex' : 'block',
-                                            gap: displayStyle === 'buttons' ? '10px' : '5px',
-                                            flexWrap: 'wrap'
-                                        }
-                                    }, [
-                                        showAllOption && el('li', {
-                                            key: 'all',
-                                            style: displayStyle === 'buttons' ? {
-                                                padding: '8px 16px',
-                                                background: '#1a4548',
-                                                color: 'white',
-                                                borderRadius: '4px',
-                                                cursor: 'not-allowed'
-                                            } : { marginBottom: '5px' }
-                                        }, __('All Projects', 'project-think')),
-                                        el('li', {
-                                            key: 'cat1',
-                                            style: displayStyle === 'buttons' ? {
-                                                padding: '8px 16px',
-                                                background: '#f0f0f0',
-                                                borderRadius: '4px',
-                                                cursor: 'not-allowed'
-                                            } : { marginBottom: '5px' }
-                                        }, __('Sample Category 1', 'project-think')),
-                                        el('li', {
-                                            key: 'cat2',
-                                            style: displayStyle === 'buttons' ? {
-                                                padding: '8px 16px',
-                                                background: '#f0f0f0',
-                                                borderRadius: '4px',
-                                                cursor: 'not-allowed'
-                                            } : { marginBottom: '5px' }
-                                        }, __('Sample Category 2', 'project-think'))
-                                    ])
-                            ])
-                        ]
+                        Disabled,
+                        { key: 'preview' },
+                        el(ServerSideRender, {
+                            block: 'project-think/category-filter',
+                            attributes: attributes
+                        })
                     )
                 ]
             );

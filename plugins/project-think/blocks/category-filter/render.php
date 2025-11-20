@@ -21,8 +21,16 @@ $terms = get_terms(array(
     'order' => 'ASC'
 ));
 
-// If no terms, return empty
+// If no terms, show a helpful message
 if (empty($terms) || is_wp_error($terms)) {
+    // In editor, show helpful message
+    if (defined('REST_REQUEST') && REST_REQUEST) {
+        return '<div class="project-category-filter-notice" style="padding: 15px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; color: #856404;">
+            <strong>No categories/subjects found with posts.</strong><br>
+            Please create categories and assign them to published posts, or the block will not display on the frontend.
+        </div>';
+    }
+    // On frontend, don't show anything if no categories
     return '';
 }
 
