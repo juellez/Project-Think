@@ -310,14 +310,18 @@ add_action( 'enqueue_block_editor_assets', 'project_think_enqueue_editor_assets'
 /**
  * Extend WordPress search to include tags
  * Searches post title, content, excerpt, AND tags
+ * Limited to 'post' post type only
  */
 function project_think_search_by_tags( $search, $query ) {
     global $wpdb;
 
-    // Only modify main search queries on frontend
+    // Only modify main search queries on frontend for 'post' type
     if ( ! $query->is_main_query() || ! $query->is_search() || is_admin() ) {
         return $search;
     }
+
+    // Limit to 'post' post type only
+    $query->set( 'post_type', 'post' );
 
     // Get the search term
     $search_term = $query->get( 's' );
@@ -359,9 +363,16 @@ add_filter( 'posts_search', 'project_think_search_by_tags', 10, 2 );
 /**
  * Prevent duplicate posts in search results
  * Since we're joining with term relationships, we need to ensure DISTINCT results
+ * Only applies to 'post' post type searches
  */
 function project_think_search_distinct( $distinct, $query ) {
     if ( ! $query->is_main_query() || ! $query->is_search() || is_admin() ) {
+        return $distinct;
+    }
+
+    // Only apply to 'post' post type
+    $post_type = $query->get( 'post_type' );
+    if ( $post_type !== 'post' ) {
         return $distinct;
     }
 
