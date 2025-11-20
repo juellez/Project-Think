@@ -1,0 +1,89 @@
+<!-- wp:template-part {"slug":"header","theme":"project-think","tagName":"header"} /-->
+
+<!-- wp:group {"tagName":"main","style":{"spacing":{"margin":{"top":"var:preset|spacing|large"},"blockGap":"var:preset|spacing|large"}},"layout":{"type":"constrained"}} -->
+<main class="wp-block-group" style="margin-top:var(--wp--preset--spacing--large)">
+
+    <!-- wp:group {"align":"wide","layout":{"type":"constrained"}} -->
+    <div class="wp-block-group alignwide">
+
+        <!-- wp:heading {"level":1,"align":"wide","style":{"typography":{"fontSize":"clamp(2rem, 5vw, 3.5rem)","fontWeight":"700","lineHeight":"1.2"},"spacing":{"margin":{"bottom":"var:preset|spacing|small"}}}} -->
+        <h1 class="wp-block-heading alignwide" style="margin-bottom:var(--wp--preset--spacing--small);font-size:clamp(2rem, 5vw, 3.5rem);font-weight:700;line-height:1.2">Project Gallery</h1>
+        <!-- /wp:heading -->
+
+        <!-- wp:paragraph {"align":"wide","style":{"spacing":{"margin":{"bottom":"var:preset|spacing|medium"}},"typography":{"fontSize":"1.125rem"}}} -->
+        <p class="alignwide" style="margin-bottom:var(--wp--preset--spacing--medium);font-size:1.125rem">Explore our collection of educational projects. Filter by subject to find resources tailored to your needs.</p>
+        <!-- /wp:paragraph -->
+
+        <!-- wp:separator {"align":"wide","backgroundColor":"primary","className":"is-style-wide"} -->
+        <hr class="wp-block-separator alignwide has-text-color has-primary-color has-alpha-channel-opacity has-primary-background-color has-background is-style-wide"/>
+        <!-- /wp:separator -->
+
+    </div>
+    <!-- /wp:group -->
+
+    <!-- wp:group {"align":"wide","layout":{"type":"constrained"}} -->
+    <div class="wp-block-group alignwide">
+
+        <!-- wp:heading {"level":3,"style":{"spacing":{"margin":{"bottom":"var:preset|spacing|small"}}}} -->
+        <h3 class="wp-block-heading" style="margin-bottom:var(--wp--preset--spacing--small)">Filter by Subject</h3>
+        <!-- /wp:heading -->
+
+        <!-- wp:project-think/category-filter {"displayStyle":"buttons","showAllOption":true} /-->
+
+    </div>
+    <!-- /wp:group -->
+
+    <!-- wp:query {"queryId":0,"query":{"perPage":12,"pages":0,"offset":0,"postType":"post","order":"desc","orderBy":"date","author":"","search":"","exclude":[],"sticky":"exclude","inherit":true},"align":"wide","layout":{"type":"constrained"}} -->
+    <div class="wp-block-query alignwide">
+
+        <!-- wp:post-template {"style":{"spacing":{"blockGap":"var:preset|spacing|medium"}},"layout":{"type":"grid","columnCount":3}} -->
+
+            <!-- wp:group {"style":{"spacing":{"padding":{"top":"0","right":"0","bottom":"0","left":"0"},"blockGap":"var:preset|spacing|small"},"border":{"radius":"8px"}},"backgroundColor":"tertiary","layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch"}} -->
+            <div class="wp-block-group has-tertiary-background-color has-background" style="border-radius:8px;padding-top:0;padding-right:0;padding-bottom:0;padding-left:0">
+
+                <!-- wp:post-featured-image {"isLink":true,"aspectRatio":"16/9","style":{"border":{"radius":{"top":"8px","right":"8px"}}}} /-->
+
+                <!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|small","right":"var:preset|spacing|small","bottom":"var:preset|spacing|small","left":"var:preset|spacing|small"},"blockGap":"0.5rem"}},"layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch"}} -->
+                <div class="wp-block-group" style="padding-top:var(--wp--preset--spacing--small);padding-right:var(--wp--preset--spacing--small);padding-bottom:var(--wp--preset--spacing--small);padding-left:var(--wp--preset--spacing--small)">
+
+                    <!-- wp:post-terms {"term":"category","style":{"typography":{"fontSize":"0.875rem","textTransform":"uppercase","fontWeight":"600"},"elements":{"link":{"color":{"text":"var:preset|color|primary"}}}},"className":"is-style-badges"} /-->
+
+                    <!-- wp:post-title {"isLink":true,"style":{"typography":{"fontSize":"1.5rem","fontWeight":"700","lineHeight":"1.3"},"spacing":{"margin":{"top":"0.25rem","bottom":"0.5rem"}}}} /-->
+
+                    <!-- wp:post-excerpt {"moreText":"Read more","excerptLength":20,"style":{"typography":{"fontSize":"1rem"}}} /-->
+
+                    <!-- wp:post-date {"format":"M j, Y","style":{"typography":{"fontSize":"0.875rem"},"elements":{"link":{"color":{"text":"var:preset|color|secondary"}}}},"textColor":"secondary"} /-->
+
+                </div>
+                <!-- /wp:group -->
+
+            </div>
+            <!-- /wp:group -->
+
+        <!-- /wp:post-template -->
+
+        <!-- wp:query-pagination {"paginationArrow":"arrow","align":"wide","layout":{"type":"flex","justifyContent":"center"}} -->
+
+            <!-- wp:query-pagination-previous /-->
+
+            <!-- wp:query-pagination-numbers /-->
+
+            <!-- wp:query-pagination-next /-->
+
+        <!-- /wp:query-pagination -->
+
+        <!-- wp:query-no-results -->
+
+            <!-- wp:paragraph {"align":"center","placeholder":"Add text or blocks that will display when a query returns no results.","style":{"spacing":{"padding":{"top":"var:preset|spacing|large","bottom":"var:preset|spacing|large"}},"typography":{"fontSize":"1.25rem"}}} -->
+            <p class="has-text-align-center" style="padding-top:var(--wp--preset--spacing--large);padding-bottom:var(--wp--preset--spacing--large);font-size:1.25rem">No projects available yet. Check back soon!</p>
+            <!-- /wp:paragraph -->
+
+        <!-- /wp:query-no-results -->
+
+    </div>
+    <!-- /wp:query -->
+
+</main>
+<!-- /wp:group -->
+
+<!-- wp:template-part {"slug":"footer","theme":"project-think","tagName":"footer"} /-->
