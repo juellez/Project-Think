@@ -117,9 +117,11 @@
             }
             postList.style.opacity = '1';
 
-            // Update history
+            // Update history - remove filter parameter
             if (window.history && window.history.pushState) {
-                window.history.pushState({ termId: null }, '', window.location.pathname);
+                const url = new URL(window.location);
+                url.searchParams.delete('filter_category');
+                window.history.pushState({ termId: null }, '', url.toString());
             }
             return;
         }
@@ -187,9 +189,11 @@
                 pagination.style.display = 'none';
             }
 
-            // Update browser history
+            // Update browser history with query parameter (not full URL)
             if (window.history && window.history.pushState) {
-                window.history.pushState({ termId: termId }, '', fallbackUrl);
+                const url = new URL(window.location);
+                url.searchParams.set('filter_category', termId);
+                window.history.pushState({ termId: termId }, '', url.toString());
             }
 
             // Scroll to results

@@ -218,12 +218,12 @@ add_filter( 'manage_edit-post_sortable_columns', 'project_think_sortable_columns
  * Register block editor scripts
  */
 function project_think_register_block_scripts() {
-    // Register Category Filter block editor script
+    // Register Category Filter block editor script with file modification time for cache busting
     wp_register_script(
         'project-think-category-filter-editor',
         PROJECT_THINK_URL . 'blocks/category-filter/index.js',
         array( 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n' ),
-        '1.0.0',
+        filemtime( PROJECT_THINK_DIR . 'blocks/category-filter/index.js' ),
         false
     );
 }
@@ -256,15 +256,15 @@ add_action( 'init', 'project_think_register_blocks' );
 function project_think_enqueue_frontend_assets() {
     // Only enqueue on pages where the category filter block is present
     if ( has_block( 'project-think/category-filter' ) || is_archive() || is_search() ) {
-        // Enqueue CSS
+        // Enqueue CSS with file modification time for cache busting
         wp_enqueue_style(
             'project-think-category-filter',
             PROJECT_THINK_URL . 'assets/css/category-filter.css',
             array(),
-            '1.0.1'
+            '1.0.2'
         );
 
-        // Enqueue JavaScript with dependencies
+        // Enqueue JavaScript with file modification time for cache busting
         wp_enqueue_script(
             'project-think-category-filter',
             PROJECT_THINK_URL . 'assets/js/category-filter.js',
@@ -291,12 +291,12 @@ add_action( 'wp_enqueue_scripts', 'project_think_enqueue_frontend_assets' );
  * Enqueue block editor assets
  */
 function project_think_enqueue_editor_assets() {
-    // Editor styles for category filter block
+    // Editor styles for category filter block with file modification time for cache busting
     wp_enqueue_style(
         'project-think-category-filter-editor',
         PROJECT_THINK_URL . 'assets/css/category-filter.css',
         array(),
-        '1.0.0'
+        filemtime( PROJECT_THINK_DIR . 'assets/css/category-filter.css' )
     );
 }
 add_action( 'enqueue_block_editor_assets', 'project_think_enqueue_editor_assets' );
