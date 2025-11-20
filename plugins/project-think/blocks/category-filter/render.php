@@ -13,25 +13,27 @@ $show_all = isset($attributes['showAllOption']) ? $attributes['showAllOption'] :
 $display_style = isset($attributes['displayStyle']) ? $attributes['displayStyle'] : 'buttons';
 $taxonomy = isset($attributes['taxonomy']) ? $attributes['taxonomy'] : 'category';
 
-// Get all categories/subjects
+// Get ALL categories/subjects - show all regardless of post count or current query
 $terms = get_terms(array(
     'taxonomy' => $taxonomy,
-    'hide_empty' => true,
+    'hide_empty' => false, // Show all categories even if they have no posts
     'orderby' => 'name',
     'order' => 'ASC'
 ));
 
-// If no terms, show a helpful message
+// If no terms exist at all, show a helpful message
 if (empty($terms) || is_wp_error($terms)) {
     // In editor, show helpful message
     if (defined('REST_REQUEST') && REST_REQUEST) {
         return '<div class="project-category-filter-notice" style="padding: 15px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; color: #856404;">
-            <strong>No categories/subjects found with posts.</strong><br>
-            Please create categories and assign them to published posts, or the block will not display on the frontend.
+            <strong>No categories/subjects found.</strong><br>
+            Please create at least one category/subject to use this filter.
         </div>';
     }
-    // On frontend, don't show anything if no categories
-    return '';
+    // On frontend, show a message too (helpful for debugging)
+    return '<div class="project-category-filter-notice" style="padding: 15px; background: #f0f0f0; border-radius: 4px;">
+        <em>No categories available. Please create some categories first.</em>
+    </div>';
 }
 
 // Get current term if on taxonomy archive

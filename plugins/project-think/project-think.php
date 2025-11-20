@@ -300,3 +300,71 @@ function project_think_enqueue_editor_assets() {
     );
 }
 add_action( 'enqueue_block_editor_assets', 'project_think_enqueue_editor_assets' );
+
+/*
+|--------------------------------------------------------------------------
+| Enhanced Search Functionality
+|--------------------------------------------------------------------------
+*/
+
+/**
+ * Extend WordPress search to include tags
+ * Searches post title, content, excerpt, AND tags
+ */
+function project_think_search_by_tags( $search, $query ) {
+    global $wpdb;
+
+    // Only modify main search queries on frontend
+    if ( ! $query->is_main_query() || ! $query->is_search() || is_admin() ) {
+        return $search;
+    }
+
+    // Get the search term
+    $search_term = $query->get( 's' );
+    if ( empty( $search_term ) ) {
+        return $search;
+    }
+
+    // Build custom search query that includes tags
+    $search = '';
+    $search_term_like = '%' . $wpdb->esc_like( $search_term ) . '%';
+
+    // Search in post title, content, excerpt (default WordPress behavior)
+    $search .= " AND (
+        ({$wpdb->posts}.post_title LIKE %s)
+        OR ({$wpdb->posts}.post_content LIKE %s)
+        OR ({$wpdb->posts}.post_excerpt LIKE %s)
+        OR (
+            {$wpdb->posts}.ID IN (
+                SELECT DISTINCT tr.object_id
+                FROM {$wpdb->term_relationships} AS tr
+                INNER JOIN {$wpdb->term_taxonomy} AS tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
+                INNER JOIN {$wpdb->terms} AS t ON tt.term_id = t.term_id
+                WHERE tt.taxonomy IN ('post_tag', 'category')
+                AND (
+                    t.name LIKE %s
+                    OR t.slug LIKE %s
+                )
+            )
+        )
+    )";
+
+    // Prepare the query with the search term
+    $search = $wpdb->prepare( $search, $search_term_like, $search_term_like, $search_term_like, $search_term_like, $search_term_like );
+
+    return $search;
+}
+add_filter( 'posts_search', 'project_think_search_by_tags', 10, 2 );
+
+/**
+ * Prevent duplicate posts in search results
+ * Since we're joining with term relationships, we need to ensure DISTINCT results
+ */
+function project_think_search_distinct( $distinct, $query ) {
+    if ( ! $query->is_main_query() || ! $query->is_search() || is_admin() ) {
+        return $distinct;
+    }
+
+    return 'DISTINCT';
+}
+add_filter( 'posts_distinct', 'project_think_search_distinct', 10, 2 );
