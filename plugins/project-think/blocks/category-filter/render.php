@@ -5,19 +5,12 @@
  * @param array    $attributes Block attributes
  * @param string   $content    Block content
  * @param WP_Block $block      Block instance
- * @return string Block HTML output
  */
-
-// Debug: Log that render is being called
-error_log('Category Filter Render Called');
-error_log('Attributes: ' . print_r($attributes, true));
 
 // Get attributes with defaults
 $show_all = isset($attributes['showAllOption']) ? $attributes['showAllOption'] : true;
 $display_style = isset($attributes['displayStyle']) ? $attributes['displayStyle'] : 'buttons';
 $taxonomy = isset($attributes['taxonomy']) ? $attributes['taxonomy'] : 'category';
-
-error_log("Display Style: $display_style, Taxonomy: $taxonomy");
 
 // Get ALL categories/subjects - show all regardless of post count or current query
 $terms = get_terms(array(
@@ -26,11 +19,6 @@ $terms = get_terms(array(
     'orderby' => 'name',
     'order' => 'ASC'
 ));
-
-error_log('Terms found: ' . (is_wp_error($terms) ? 'ERROR: ' . $terms->get_error_message() : count($terms)));
-if (!is_wp_error($terms) && !empty($terms)) {
-    error_log('Term names: ' . implode(', ', wp_list_pluck($terms, 'name')));
-}
 
 // If no terms exist at all, show a helpful message
 if (empty($terms) || is_wp_error($terms)) {
@@ -134,7 +122,4 @@ ob_start();
 </div>
 
 <?php
-$output = ob_get_clean();
-error_log('Category Filter Output Length: ' . strlen($output));
-error_log('Category Filter Output Preview: ' . substr($output, 0, 200));
-return $output;
+echo ob_get_clean();

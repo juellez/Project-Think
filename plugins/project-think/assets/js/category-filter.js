@@ -99,6 +99,17 @@
             return;
         }
 
+        // Get the template post element before clearing
+        const templatePost = postList.querySelector('.wp-block-post');
+        if (!templatePost) {
+            console.error('No post template found - using page navigation');
+            window.location.href = fallbackUrl;
+            return;
+        }
+
+        // Clone the template for reuse
+        const postTemplate = templatePost.cloneNode(true);
+
         // Show loading state
         if (loadingIndicator) {
             loadingIndicator.style.display = 'flex';
@@ -108,8 +119,13 @@
         // Build REST API URL
         let apiUrl = '/wp-json/wp/v2/posts?_embed=true&per_page=12';
 
+        // Use correct REST API parameter names
         if (termId) {
-            apiUrl += '&' + taxonomy + '=' + termId;
+            if (taxonomy === 'category') {
+                apiUrl += '&categories=' + termId; // REST API uses plural
+            } else if (taxonomy === 'post_tag') {
+                apiUrl += '&tags=' + termId; // REST API uses plural
+            }
         }
 
         // Fetch filtered posts
@@ -127,12 +143,12 @@
             return response.json();
         })
         .then(function (posts) {
-            // Update the post list
-            renderPosts(posts, postList, queryLoop);
+            // Update the post list using the template
+            renderPosts(posts, postList, postTemplate);
 
-            // Hide pagination during filtered view (or update it)
+            // Hide pagination during filtered view
             if (pagination) {
-                pagination.style.display = posts.length > 12 ? '' : 'none';
+                pagination.style.display = 'none';
             }
 
             // Update browser history (optional - for back button support)
@@ -159,112 +175,91 @@
     }
 
     /**
-     * Render posts into the Query Loop
+     * Render posts by cloning the existing template
      */
-    function renderPosts(posts, postList, queryLoop) {
-        if (!posts || posts.length === 0) {
-            postList.innerHTML = '<li class="wp-block-post" style="width: 100%; text-align: center; padding: 40px;">' +
-                '<p style="font-size: 1.2em; color: #666;">No projects found for this category.</p>' +
-                '</li>';
-            return;
-        }
-
-        // Get the first post item as a template
-        const firstPost = postList.querySelector('.wp-block-post');
-        if (!firstPost) {
-            console.error('No post template found');
-            return;
-        }
-
-        // Clone the structure
-        const templateStructure = analyzePostStructure(firstPost);
-
+    function renderPosts(posts, postList, postTemplate) {
         // Clear current posts
         postList.innerHTML = '';
 
-        // Create new post items
+        if (!posts || posts.length === 0) {
+            const noResults = postTemplate.cloneNode(true);
+            noResults.innerHTML = '<div style="width: 100%; text-align: center; padding: 40px; grid-column: 1 / -1;">' +
+                '<p style="font-size: 1.2em; color: #666;">No projects found for this category.</p>' +
+                '</div>';
+            postList.appendChild(noResults);
+            return;
+        }
+
+        // Create posts by cloning and updating the template
         posts.forEach(function (post) {
-            const postItem = createPostItem(post, templateStructure);
+            const postItem = postTemplate.cloneNode(true);
+            updatePostContent(postItem, post);
             postList.appendChild(postItem);
         });
     }
 
     /**
-     * Analyze the structure of a post item
+     * Update post content in the cloned template
      */
-    function analyzePostStructure(postElement) {
-        return {
-            hasImage: !!postElement.querySelector('.wp-block-post-featured-image'),
-            hasTitle: !!postElement.querySelector('.wp-block-post-title'),
-            hasExcerpt: !!postElement.querySelector('.wp-block-post-excerpt'),
-            hasDate: !!postElement.querySelector('.wp-block-post-date'),
-            hasTerms: !!postElement.querySelector('.wp-block-post-terms'),
-            classList: Array.from(postElement.classList)
-        };
-    }
-
-    /**
-     * Create a post item element
-     */
-    function createPostItem(post, structure) {
-        const li = document.createElement('li');
-        structure.classList.forEach(function (className) {
-            li.classList.add(className);
-        });
-
-        let html = '';
-
-        // Featured Image
-        if (structure.hasImage && post._embedded && post._embedded['wp:featuredmedia']) {
+    function updatePostContent(postElement, post) {
+        // Update featured image
+        const featuredImage = postElement.querySelector('.wp-block-post-featured-image img');
+        if (featuredImage && post._embedded && post._embedded['wp:featuredmedia']) {
             const media = post._embedded['wp:featuredmedia'][0];
             const imageUrl = media.media_details && media.media_details.sizes && media.media_details.sizes.medium
                 ? media.media_details.sizes.medium.source_url
                 : media.source_url;
-
-            html += '<div class="wp-block-post-featured-image">' +
-                '<a href="' + escapeHtml(post.link) + '">' +
-                '<img src="' + escapeHtml(imageUrl) + '" alt="' + escapeHtml(post.title.rendered) + '" loading="lazy" />' +
-                '</a>' +
-                '</div>';
+            featuredImage.src = imageUrl;
+            featuredImage.alt = post.title.rendered;
         }
 
-        // Title
-        if (structure.hasTitle) {
-            html += '<h2 class="wp-block-post-title">' +
-                '<a href="' + escapeHtml(post.link) + '">' + post.title.rendered + '</a>' +
-                '</h2>';
+        // Update featured image link
+        const imageLink = postElement.querySelector('.wp-block-post-featured-image a');
+        if (imageLink) {
+            imageLink.href = post.link;
         }
 
-        // Date
-        if (structure.hasDate) {
+        // Update title
+        const titleElement = postElement.querySelector('.wp-block-post-title');
+        if (titleElement) {
+            titleElement.innerHTML = '<a href="' + escapeHtml(post.link) + '">' + post.title.rendered + '</a>';
+        }
+
+        // Update title link (if title itself is not a link)
+        const titleLink = postElement.querySelector('.wp-block-post-title a');
+        if (titleLink) {
+            titleLink.href = post.link;
+            titleLink.innerHTML = post.title.rendered;
+        }
+
+        // Update excerpt
+        const excerptElement = postElement.querySelector('.wp-block-post-excerpt__excerpt');
+        if (excerptElement && post.excerpt) {
+            excerptElement.innerHTML = post.excerpt.rendered;
+        }
+
+        // Update date
+        const dateElement = postElement.querySelector('.wp-block-post-date time');
+        if (dateElement) {
             const date = new Date(post.date);
-            html += '<div class="wp-block-post-date">' +
-                '<time datetime="' + post.date + '">' + date.toLocaleDateString() + '</time>' +
-                '</div>';
+            dateElement.setAttribute('datetime', post.date);
+            dateElement.textContent = date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
         }
 
-        // Categories/Terms
-        if (structure.hasTerms && post._embedded && post._embedded['wp:term']) {
+        // Update categories/terms
+        const termsElement = postElement.querySelector('.wp-block-post-terms');
+        if (termsElement && post._embedded && post._embedded['wp:term']) {
             const categories = post._embedded['wp:term'][0] || [];
             if (categories.length > 0) {
-                html += '<div class="wp-block-post-terms">';
-                categories.forEach(function (term, index) {
-                    if (index > 0) html += ', ';
-                    html += '<a href="' + escapeHtml(term.link) + '">' + escapeHtml(term.name) + '</a>';
-                });
-                html += '</div>';
+                termsElement.innerHTML = categories.map(function(term) {
+                    return '<a href="' + escapeHtml(term.link) + '" rel="tag">' + escapeHtml(term.name) + '</a>';
+                }).join(' ');
             }
         }
-
-        // Excerpt
-        if (structure.hasExcerpt && post.excerpt) {
-            html += '<div class="wp-block-post-excerpt">' +
-                '<p class="wp-block-post-excerpt__excerpt">' + post.excerpt.rendered + '</p>' +
-                '</div>';
-        }
-
-        li.innerHTML = html;
-        return li;
     }
 
     /**
